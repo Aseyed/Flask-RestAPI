@@ -3,11 +3,13 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
-from models import MeterInfo, MeterInfoSchema, app, meterinfo_schema, meterinfos_schema
+from models import MeterInfo, MeterInfoSchema, app, meterinfo_schema, metersinfo_schema
+from models import Customer, customer_schema, customers_schema
 
-# Get All Products
+
+# Get All MeterInfo
 @app.route('/meterinfo', methods=['GET'])
-def get_products():
+def get_meterinfo():
 
     id_status = ''
     end_time_status = ''
@@ -17,7 +19,8 @@ def get_products():
     start_time = request.headers.get('start_time')
     end_time = request.headers.get('end_time')
 
-    id_status = '' if ((_id.isnumeric()) and (len(_id) <= 64)) else "Validation Error !!!"
+    id_status = '' if ((_id.isnumeric()) and (
+        len(_id) <= 64)) else "Validation Error !!!"
 
     try:
         datetime.strptime(start_time, "%Y-%m-%d-%H-%M-%S")
@@ -36,7 +39,7 @@ def get_products():
         all_meterinfo = MeterInfo.query.filter(MeterInfo.ID == _id).filter(
             MeterInfo.TimeTag >= start_time, MeterInfo.TimeTag <= end_time)
 
-        result = meterinfos_schema.dump(all_meterinfo)
+        result = metersinfo_schema.dump(all_meterinfo)
 
         status = {'status': 'Successful'}
         result.data.append(status)
@@ -44,7 +47,7 @@ def get_products():
         response.status_code = 200
 
     else:
-        response =  jsonify({
+        response = jsonify({
             "status": "Unsuccessful",
             "id": [
                 {
@@ -63,6 +66,35 @@ def get_products():
                 }
             ]
 
+        })
+        response.status_code = 400
+    return response
+
+# Get Customer
+@app.route('/customer/', methods=['GET'])
+def get_customer():
+
+    customer_id_status = str()
+    customer_id = request.args.get('id')
+
+    customer_id_status = '' if (customer_id.isnumeric()) else "Validation Error !!!"
+
+    if(not customer_id_status.strip()):
+
+        customer_info = Customer.query.filter(
+            Customer.xSubscriptionId_Pk == customer_id)
+
+        result = customer_schema.dump(customer_info)
+
+        status = {'status': 'Successful'}
+        result.data.append(status)
+        response = jsonify(result.data)
+        response.status_code = 200
+
+    else:
+        response = jsonify({
+            "status": "Unsuccessful",
+            'message': customer_id_status,
         })
         response.status_code = 400
     return response
