@@ -7,14 +7,18 @@ from app import __name__ as app_name
 
 # init app
 app = Flask(app_name)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3113@localhost/myELEC'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3113@localhost/ELEC'
+app.config['SECRET_KEY'] = 'thisissecret'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # init db
 db = SQLAlchemy(app)
 
+# init ma
+ma = Marshmallow(app)
 
 # MeterInfo Class/Model
+
+
 class MeterInfo(db.Model):
     __tablename__ = 'MeterInfo'
 
@@ -59,10 +63,6 @@ class MeterInfo(db.Model):
     ProfileStatusPower = db.Column(db.Integer)
 
 
-# init ma
-ma = Marshmallow(app)
-
-
 # MeterInfo Schema
 class MeterInfoSchema(ma.Schema):
     class Meta:
@@ -71,6 +71,89 @@ class MeterInfoSchema(ma.Schema):
                   "CurrentL3", "demand", "PowerFactor", "ActiveEnergyExport", "ReActiveEnergyExport",
                   "ProfileStatusEnergy", "ProfileStatusPower")
 
+
 # init Schema
 meterinfo_schema = MeterInfoSchema(strict=True)
-meterinfos_schema = MeterInfoSchema(many=True, strict=True)
+metersinfo_schema = MeterInfoSchema(many=True, strict=True)
+
+
+# Customer Class/Model
+class Customer(db.Model):
+    __tablename__ = 'Customer'
+
+    xSubscriptionId_Pk = db.Column(db.BigInteger,primary_key=True, nullable=False)
+    xSubscriberLastUpdateDate = db.Column(db.Integer)
+    xSubscriberId_pk = db.Column(db.Integer)
+    xSubscriptionLogId_fk = db.Column(db.BigInteger)
+    xSubscriberFirstName = db.Column(db.String(50))
+    xSubscriberLastName = db.Column(db.String(50))
+    xSubscriberMobile = db.Column(db.String(11))
+    xSubscriptionPostCode = db.Column(db.String(10))
+    xSubscriberTelNo = db.Column(db.String(20))
+    xSubscriptionAddress = db.Column(db.String(250))
+    xSubscriberIsActive = db.Column(db.Boolean)
+    xSubscriptionUsageAvg = db.Column(db.Float(53))
+    xGISCode = db.Column(db.String(30))
+    xSubscriberAddress = db.Column(db.String(250))
+    xComunicateAddress = db.Column(db.String(250))
+    xDepartmentName = db.Column(db.String(50))
+    xFatherName = db.Column(db.String(50))
+    xSubscriptionDebit = db.Column(db.BigInteger)
+    xCasteName = db.Column(db.String(50))
+    xServiceLineName = db.Column(db.String(60))
+    xContractPower = db.Column(db.Integer)
+    xFaze = db.Column(db.String(1))
+    xAmper = db.Column(db.SmallInteger)
+    xCounterBuldingNo = db.Column(db.String(20))
+    xCounterMultiple = db.Column(db.Float(53))
+    xDigitNum = db.Column(db.SmallInteger)
+    xDimandmeterDomain = db.Column(db.Integer)
+    xCounterTypeName = db.Column(db.String(30))
+    xRegionName = db.Column(db.String(50))
+    xBranchStateName = db.Column(db.String(25))
+    xLongitude = db.Column(db.Float(53))
+    xLatitude = db.Column(db.Float(53))
+    xSubscriptionLevelName = db.Column(db.String(50))
+    xPayDelayCount = db.Column(db.SmallInteger)
+    xBakhshName = db.Column(db.String(30))
+    xOmorName = db.Column(db.String(60))
+    xActiveCounterId_fk = db.Column(db.Integer)
+    xUsageTypeName = db.Column(db.String(250))
+    xUsageGroupName = db.Column(db.String(100))
+    xUsageSubGroupName = db.Column(db.String(50))
+    xISIC_Code = db.Column(db.String(10))
+    xISIC_Name = db.Column(db.String(100))
+    xPrevOutPowerCount = db.Column(db.Integer)
+    xPrev3TariffDayNums = db.Column(db.Integer)
+    xPrevSureBillCount = db.Column(db.Integer)
+    xTariffName = db.Column(db.String(50))
+
+
+# Customer Schema
+class CustomerSchema(ma.Schema):
+    class Meta:
+        fields = ("xSubscriptionId_Pk", "xSubscriberLastUpdateDate",
+                  "xSubscriberId_pk", "xSubscriptionLogId_fk", "xSubscriberFirstName",
+                  "xSubscriberLastName", "xSubscriberMobile", "xSubscriptionPostCode",
+                  "xSubscriberTelNo", "xSubscriptionAddress", "xSubscriberIsActive",
+                  "xSubscriptionUsageAvg", "xGISCode", "xSubscriberAddress", "xComunicateAddress",
+                  "xDepartmentName", "xFatherName", "xSubscriptionDebit", "xCasteName", "xServiceLineName",
+                  "xContractPower", "xFaze", "xAmper", "xCounterBuldingNo", "xCounterMultiple", "xDigitNum",
+                  "xDimandmeterDomain", "xCounterTypeName", "xRegionName", "xBranchStateName", "xLongitude",
+                  "xLatitude", "xSubscriptionLevelName", "xPayDelayCount", "xBakhshName", "xOmorName",
+                  "xActiveCounterId_fk", "xUsageTypeName", "xUsageGroupName", "xUsageSubGroupName",
+                  "xISIC_Code", "xISIC_Name", "xPrevOutPowerCount", "xPrev3TariffDayNums", "xPrevSureBillCount",
+                  "xTariffName")
+
+
+# init Schema
+customer_schema = CustomerSchema(strict=True)
+customers_schema = CustomerSchema(many=True, strict=True)
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
+    name = db.Column(db.String(50))
+    password = db.Column(db.String(80))
+    admin = db.Column(db.Boolean)
