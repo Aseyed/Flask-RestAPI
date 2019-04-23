@@ -3,33 +3,37 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
-from models import MeterInfo, MeterInfoSchema, app, meterinfo_schema, metersinfo_schema
-from models import Customer, customer_schema, customers_schema
+from models import MeterInfo, MeterInfoSchema, app, metersinfo_schema
+from models import Customer, customers_schema
 
 
 # Get All MeterInfo
-@app.route('/meterinfo', methods=['GET'])
+@app.route('/api/meterinfo/', methods=['GET'])
 def get_meterinfo():
 
-    id_status = ''
+    id_status = str('')
     end_time_status = ''
     start_time_status = ''
 
-    _id = request.headers.get('id')
-    start_time = request.headers.get('start_time')
-    end_time = request.headers.get('end_time')
+    _id = request.args.get('id')
+    start_time = request.args.get('start_time')
+    end_time = request.args.get('end_time')
 
     id_status = '' if ((_id.isnumeric()) and (
         len(_id) <= 64)) else "Validation Error !!!"
 
     try:
-        datetime.strptime(start_time, "%Y-%m-%d-%H-%M-%S")
+        datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+        start_time = start_time.replace(' ', '-')
+        start_time = start_time.replace(':', '-')
         start_time = ''.join(start_time.split('-'))
     except:
         start_time_status = "Validation Error !!!"
 
     try:
-        datetime.strptime(end_time, "%Y-%m-%d-%H-%M-%S")
+        datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+        end_time = end_time.replace(' ', '-')
+        end_time = end_time.replace(':', '-')
         end_time = ''.join(end_time.split('-'))
     except:
         end_time_status = "Validation Error !!!"
@@ -39,16 +43,15 @@ def get_meterinfo():
         all_meterinfo = MeterInfo.query.filter(MeterInfo.ID == _id).filter(
             MeterInfo.TimeTag >= start_time, MeterInfo.TimeTag <= end_time)
 
-        result = metersinfo_schema.dump(all_meterinfo)
+        response = metersinfo_schema.jsonify(all_meterinfo)
 
-        status = {'status': 'Successful'}
-        result.data.append(status)
-        response = jsonify(result.data)
-        response.status_code = 200
+        if not response:
+            response.status_code = 204
+        else:
+            response.status_code = 200
 
     else:
         response = jsonify({
-            "status": "Unsuccessful",
             "id": [
                 {
                     'message': id_status,
@@ -62,7 +65,6 @@ def get_meterinfo():
             "end_time": [
                 {
                     'message': end_time_status,
-
                 }
             ]
 
@@ -71,30 +73,30 @@ def get_meterinfo():
     return response
 
 # Get Customer
-@app.route('/customer/', methods=['GET'])
-def get_customer():
+@app.route('/api/customer/<customer_id>', methods=['GET'])
+def get_customer(customer_id):
 
-    customer_id_status = str()
-    customer_id = request.args.get('id')
+    customer_id_status = str('')
+    # customer_id = request.args.get(id)
 
-    customer_id_status = '' if (customer_id.isnumeric()) else "Validation Error !!!"
+    customer_id_status = '' if (
+        customer_id.isnumeric()) else "Validation Error !!!"
 
     if(not customer_id_status.strip()):
 
         customer_info = Customer.query.filter(
             Customer.xSubscriptionId_Pk == customer_id)
 
-        result = customer_schema.dump(customer_info)
-
-        status = {'status': 'Successful'}
-        result.data.append(status)
-        response = jsonify(result.data)
-        response.status_code = 200
+        response = jsonify(customers_schema.dump(customer_info).data)
+        # response = customer_info
+        # if not response:
+        #     response.status_code = 204
+        # else:
+        #     response.status_code = 200
 
     else:
         response = jsonify({
-            "status": "Unsuccessful",
-            'message': customer_id_status,
+            'message': customer_id_status
         })
         response.status_code = 400
     return response
