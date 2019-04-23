@@ -1,6 +1,6 @@
 # coding: utf-8
 from flask import Flask
-from sqlalchemy import BigInteger, Column, DateTime, Float, Integer, String
+from sqlalchemy import BigInteger, Column, DateTime, Float, Integer, String, Boolean
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from app import __name__ as app_name
@@ -73,7 +73,7 @@ class MeterInfoSchema(ma.Schema):
 
 
 # init Schema
-meterinfo_schema = MeterInfoSchema(strict=True)
+# meterinfo_schema = MeterInfoSchema(strict=True)
 metersinfo_schema = MeterInfoSchema(many=True, strict=True)
 
 
@@ -147,8 +147,8 @@ class CustomerSchema(ma.Schema):
 
 
 # init Schema
-customer_schema = CustomerSchema(strict=True)
-customers_schema = CustomerSchema(many=True, strict=True)
+# customer_schema = CustomerSchema()
+customers_schema = CustomerSchema(many=True)
 
 
 class User(db.Model):
