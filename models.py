@@ -7,10 +7,7 @@ from app import __name__ as app_name
 
 # init app
 app = Flask(app_name)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3113@localhost/ELEC'
-app.config['SECRET_KEY'] = 'thisissecret'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# init db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'YOUR_DB_CONNECTION_STRING'
 db = SQLAlchemy(app)
 
 # init ma
